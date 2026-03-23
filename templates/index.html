@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Deudor Tracking Pro | Accesibilidad</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config={
+            theme:{
+                extend:{
+                    colors:{
+                        "brand-yellow":"#FFBF12",
+                        "charcoal":"#121212",
+                        "sidebar-dark":"#0F0F0F"
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .view { display: none !important; }
+        .view.active { display: flex !important; }
+        html, body { height: 100%; margin: 0; overflow: hidden; }
+        body { font-family: 'Open Sans', sans-serif; }
+        .material-symbols-outlined { font-size: 24px; vertical-align: middle; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #27272a; border-radius: 10px; }
+
+        /* ESTILOS DE ENFOQUE (ACCESIBILIDAD) */
+        :focus-visible {
+            outline: 4px solid #FFBF12 !important;
+            outline-offset: 2px;
+            box-shadow: 0 0 15px rgba(255, 191, 18, 0.5);
+        }
+
+        /* CONFIGURACIÓN PARA IMPRESIÓN */
+        #ticket-print { display: none; }
+        @media print {
+            body > *:not(#ticket-print) { display: none !important; }
+            #ticket-print { 
+                display: block !important; 
+                background: white !important;
+                color: black !important;
+                padding: 40px !important;
+                width: 100% !important;
+                font-family: monospace !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-charcoal">
+
+<div id="ticket-print">
+    <div style="text-align: center; border-bottom: 2px solid black; padding-bottom: 10px; margin-bottom: 20px;">
+        <h1 style="font-size: 22px; font-weight: bold; margin: 0;">COMPROBANTE DE MOVIMIENTO</h1>
+        <p style="margin: 5px 0;">Sistema de Gestión de Cartera</p>
+    </div>
+    <div style="line-height: 2; font-size: 16px;">
+        <p><strong>FECHA:</strong> <span id="p-fecha"></span></p>
+        <p><strong>CLIENTE:</strong> <span id="p-cliente"></span></p>
+        <p><strong>DETALLE:</strong> <span id="p-detalle"></span></p>
+        <p><strong>OPERACIÓN:</strong> <span id="p-tipo"></span></p>
+        <div style="border-top: 1px solid black; margin-top: 20px; padding-top: 10px;">
+            <p style="font-size: 24px; text-align: right;"><strong>MONTO:</strong> $<span id="p-monto"></span></p>
+            <p style="font-size: 14px; text-align: right; opacity: 0.7;"><strong>SALDO RESTANTE:</strong> $<span id="p-saldo"></span></p>
+        </div>
+    </div>
+    <div style="text-align: center; margin-top: 60px; border-top: 1px dashed black; padding-top: 20px;">
+        <p>*** Gracias por su confianza ***</p>
+    </div>
+</div>
+
+<div id="view-login" class="view active flex flex-col justify-center items-center p-4 w-full h-screen">
+    <main class="w-full max-w-[450px]">
+        <div class="text-center mb-10">
+            <div class="w-16 h-16 bg-brand-yellow text-charcoal rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl">
+                <span class="material-symbols-outlined text-4xl">key</span>
+            </div>
+            <p class="text-white text-sm uppercase tracking-widest opacity-60 font-bold">Acceso al Sistema</p>
+        </div>
+        <div class="bg-white shadow-2xl rounded-[2.5rem] p-12">
+            <h1 class="text-3xl font-black mb-8 text-charcoal">Iniciar Sesión</h1>
+            <form id="loginForm" class="flex flex-col gap-6">
+                <div class="space-y-2">
+                    <label class="text-[10px] uppercase font-black text-zinc-400 ml-2">Correo Electrónico</label>
+                    <input id="loginEmail" type="email" placeholder="ejemplo@correo.com" class="p-4 border rounded-2xl w-full outline-none transition-all" required>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[10px] uppercase font-black text-zinc-400 ml-2">Contraseña</label>
+                    <input id="loginPass" type="password" placeholder="••••••••" class="p-4 border rounded-2xl w-full outline-none transition-all" required>
+                </div>
+                <button class="bg-brand-yellow py-4 rounded-2xl font-black flex items-center justify-center gap-2 hover:brightness-95 transition-all mt-4 text-charcoal shadow-lg shadow-brand-yellow/20">
+                    Entrar <span class="material-symbols-outlined">login</span>
+                </button>
+            </form>
+        </div>
+    </main>
+</div>
+
+<div id="view-admin-container" class="view bg-[#F8F9FA] w-full h-screen overflow-hidden">
+    <aside class="w-[300px] bg-sidebar-dark text-white flex flex-col h-full shrink-0">
+        <div class="p-8 border-b border-white/5 flex items-center gap-3">
+            <div class="w-10 h-10 bg-brand-yellow rounded-xl flex items-center justify-center text-black shadow-lg shadow-brand-yellow/10">
+                <span class="material-symbols-outlined">analytics</span>
+            </div>
+            <span class="font-black uppercase text-sm tracking-tighter italic">Gestión<span class="text-brand-yellow">Cartera</span></span>
+        </div>
+        
+        <nav class="flex-1 p-6 space-y-2 custom-scrollbar overflow-y-auto">
+            <button onclick="changeAdminTab('resumen')" class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all text-sm font-bold opacity-70 hover:opacity-100" id="btn-tab-resumen">
+                <span class="material-symbols-outlined text-brand-yellow">dashboard</span> Resumen General
+            </button>
+            <div class="h-px bg-white/5 my-4"></div>
+            <p class="text-[10px] uppercase text-zinc-600 font-black mb-4 px-3">Clientes Activos</p>
+            <div id="admin-user-list" class="space-y-1"></div>
+            
+            <button onclick="nuevoDeudor()" class="mt-6 w-full py-3 border-2 border-dashed border-zinc-800 rounded-xl text-[10px] hover:text-brand-yellow hover:border-brand-yellow transition-all font-bold uppercase">
+                + Nuevo Deudor
+            </button>
+        </nav>
+
+        <div class="p-6 border-t border-white/5 space-y-1">
+            <button onclick="exportarCSV()" class="w-full py-2 text-left text-[11px] text-zinc-500 hover:text-white flex gap-2"><span class="material-symbols-outlined text-sm">table</span> Exportar CSV</button>
+            <button onclick="exportarBaseDatos()" class="w-full py-2 text-left text-[11px] text-zinc-500 hover:text-white flex gap-2"><span class="material-symbols-outlined text-sm">save</span> Exportar JSON</button>
+            <label class="w-full py-2 text-left text-[11px] text-zinc-500 hover:text-white flex gap-2 cursor-pointer">
+                <span class="material-symbols-outlined text-sm">upload</span> Importar JSON
+                <input type="file" accept=".json" onchange="importarBaseDatos(event)" hidden>
+            </label>
+            <a href="#" onclick="alert('Sistema de Gestión v3.5 - 2026')" class="w-full py-2 text-left text-[11px] text-zinc-500 hover:text-white flex gap-2"><span class="material-symbols-outlined text-sm">info</span> Acerca de</a>
+            <button onclick="logout()" class="w-full py-2 text-left text-[11px] text-rose-400 hover:text-rose-300 flex gap-2 mt-2 font-black uppercase"><span class="material-symbols-outlined text-sm">logout</span> Salir</button>
+        </div>
+    </aside>
+
+    <main class="flex-1 h-full overflow-y-auto p-12 custom-scrollbar bg-[#F8F9FA]">
+        <div id="tab-resumen" class="admin-tab">
+            <header class="mb-10">
+                <h1 class="text-4xl font-black text-charcoal tracking-tighter">Panel de Resumen</h1>
+            </header>
+            <div class="grid grid-cols-3 gap-6 mb-10">
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-zinc-100">
+                    <p class="text-[10px] font-black text-zinc-400 uppercase mb-1">Saldo Global</p>
+                    <h3 id="kpi-total" class="text-3xl font-black text-charcoal">$0.00</h3>
+                </div>
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-zinc-100">
+                    <p class="text-[10px] font-black text-rose-500 uppercase mb-1">Morosos (>30 días)</p>
+                    <h3 id="kpi-morosos" class="text-3xl font-black text-rose-600">0</h3>
+                </div>
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-zinc-100">
+                    <p class="text-[10px] font-black text-emerald-500 uppercase mb-1">Al Corriente</p>
+                    <h3 id="kpi-corriente" class="text-3xl font-black text-emerald-600">0</h3>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-10 mb-10">
+                <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-zinc-100 h-[380px] flex items-center justify-center">
+                    <canvas id="chartStatus"></canvas>
+                </div>
+                <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-zinc-100 h-[380px]">
+                    <canvas id="chartTopDeudores"></canvas>
+                </div>
+            </div>
+            <div class="bg-white rounded-[2.5rem] shadow-sm border border-zinc-100 overflow-hidden">
+                <div class="p-6 bg-zinc-50 border-b font-black text-[10px] text-zinc-500 uppercase">Detalle de Morosidad</div>
+                <table class="w-full text-left">
+                    <tbody id="tabla-morosos-body" class="divide-y divide-zinc-50"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="tab-gestion" class="admin-tab hidden">
+            <header class="mb-10 flex justify-between items-end">
+                <div>
+                    <h1 id="selected-client-name" class="text-4xl font-black text-charcoal tracking-tighter italic">Seleccione un Cliente</h1>
+                    <p class="text-zinc-500">Gestión de movimientos</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-[10px] uppercase text-zinc-400 font-black mb-1">Saldo Actual</p>
+                    <p id="selected-client-debt" class="text-4xl font-black text-slate-900">$0.00</p>
+                </div>
+            </header>
+            <div class="grid grid-cols-2 gap-10">
+                <div class="bg-white p-8 rounded-[2.5rem] border shadow-sm transition-all focus-within:border-brand-yellow">
+                    <h2 class="font-black text-xs text-zinc-400 uppercase mb-6 tracking-widest"><span class="material-symbols-outlined text-brand-yellow">payments</span> Registrar Cargo</h2>
+                    <input id="debt-desc" placeholder="Concepto" class="p-4 rounded-xl w-full mb-4 bg-zinc-50 border outline-none transition-all focus:bg-white">
+                    <input id="debt-amount" type="number" placeholder="Monto $" class="p-4 rounded-xl w-full mb-4 font-bold text-xl outline-none transition-all focus:bg-white">
+                    <button onclick="registrarMovimiento('Cargo')" class="bg-charcoal text-white py-4 w-full rounded-2xl font-black uppercase transition-all hover:bg-black active:scale-[0.98]">Generar Cargo</button>
+                </div>
+                <div class="bg-white p-8 rounded-[2.5rem] border border-emerald-100 shadow-sm transition-all focus-within:border-emerald-500">
+                    <h2 class="font-black text-xs text-emerald-600 uppercase mb-6 tracking-widest"><span class="material-symbols-outlined text-emerald-600">handshake</span> Registrar Abono</h2>
+                    <input id="pay-amount" type="number" placeholder="Monto $" class="p-4 rounded-xl w-full mb-4 font-bold text-xl text-emerald-600 bg-emerald-50/30 border-emerald-100 outline-none transition-all focus:bg-white">
+                    <button onclick="registrarMovimiento('Abono')" class="bg-emerald-600 text-white py-4 w-full rounded-2xl font-black uppercase transition-all hover:bg-emerald-700 active:scale-[0.98]">Sellar Pago</button>
+                    <button id="admin-print-btn" onclick="imprimirUltimoTicket()" class="hidden bg-brand-yellow text-charcoal py-4 w-full rounded-2xl font-black mt-4 flex items-center justify-center gap-2 transition-all hover:scale-[1.02]">
+                        <span class="material-symbols-outlined">print</span> Imprimir Ticket Actual
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<div id="view-client" class="view flex flex-col bg-[#F3F4F6] w-full h-screen overflow-hidden">
+    <nav class="bg-sidebar-dark p-6 text-white flex justify-between items-center shrink-0 shadow-xl">
+        <span class="text-2xl font-black italic uppercase">MI<span class="text-brand-yellow">CUENTA</span></span>
+        <button onclick="logout()" class="material-symbols-outlined text-zinc-500 hover:text-brand-yellow">logout</button>
+    </nav>
+    <main class="flex-1 overflow-y-auto p-12 w-full max-w-5xl mx-auto custom-scrollbar">
+        <div class="bg-white p-12 rounded-[3rem] shadow-2xl text-center mb-10 border-t-8 border-brand-yellow">
+            <p class="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2">Total Adeudado</p>
+            <h2 id="client-total-debt" class="text-7xl font-black text-charcoal tracking-tighter">$0.00</h2>
+        </div>
+        <div class="bg-white rounded-[2.5rem] shadow-sm border overflow-hidden">
+            <div class="p-6 bg-zinc-50 border-b font-black text-[10px] text-zinc-400 uppercase">Historial de Movimientos</div>
+            <table class="w-full text-left">
+                <tbody id="client-movements-table" class="divide-y divide-zinc-50"></tbody>
+            </table>
+        </div>
+    </main>
+</div>
+
+<script>
+const DB={
+    getUsers(){ return JSON.parse(localStorage.getItem("dt_users"))||[{id:"0001",email:"admin@deudor.com",pass:"admin123",rol:"admin",nombre:"Administrador"},{id:"882910",email:"cliente@deudor.com",pass:"cliente123",rol:"cliente",nombre:"Juan Pérez",saldo:5000}]; },
+    getMovements(){ return JSON.parse(localStorage.getItem("dt_movements"))||[] },
+    saveUsers(d){ localStorage.setItem("dt_users",JSON.stringify(d)) },
+    saveMovements(d){ localStorage.setItem("dt_movements",JSON.stringify(d)) }
+};
+
+let currentUser=null, selectedClientId=null, lastMvId=null, chart1=null, chart2=null;
+
+function showView(id){
+    document.querySelectorAll(".view").forEach(v=>v.classList.remove('active'));
+    const target = document.getElementById(id);
+    if(target) target.classList.add('active');
+    if(id==='view-admin-container'){ renderAdminList(); changeAdminTab('resumen'); }
+    if(id==='view-client') renderClientDashboard();
+}
+
+function changeAdminTab(tab){
+    document.querySelectorAll('.admin-tab').forEach(t=>t.classList.add('hidden'));
+    document.getElementById('tab-'+tab).classList.remove('hidden');
+    if(tab==='resumen') updateDashboard();
+}
+
+document.getElementById("loginForm").onsubmit=(e)=>{
+    e.preventDefault();
+    const u = DB.getUsers().find(x=>x.email===document.getElementById('loginEmail').value && x.pass===document.getElementById('loginPass').value);
+    if(!u) return alert("Credenciales incorrectas");
+    currentUser=u; showView(u.rol==="admin"?"view-admin-container":"view-client");
+}
+
+function logout(){ location.reload(); }
+
+function updateDashboard(){
+    const users = DB.getUsers().filter(u=>u.rol==='cliente');
+    const mv = DB.getMovements();
+    let total=0, mCount=0, cCount=0;
+    users.forEach(u=>{
+        total+=u.saldo;
+        const ab = mv.filter(m=>m.id===u.id && m.tipo==='Abono');
+        const d = ab.length>0 ? (new Date()-new Date(ab[ab.length-1].fecha_raw))/(1000*3600*24) : 999;
+        (u.saldo>0 && d>30)?mCount++:cCount++;
+    });
+    document.getElementById('kpi-total').innerText = `$${total.toLocaleString()}`;
+    document.getElementById('kpi-morosos').innerText = mCount;
+    document.getElementById('kpi-corriente').innerText = cCount;
+    initCharts(cCount, mCount, users);
+}
+
+function initCharts(c,m,users){
+    if(!window.Chart) return;
+    if(chart1) chart1.destroy(); if(chart2) chart2.destroy();
+    chart1 = new Chart(document.getElementById('chartStatus'), { type:'doughnut', data:{ labels:['OK','Morosos'], datasets:[{data:[c,m], backgroundColor:['#10b981','#f43f5e'], borderWidth:0}] }, options:{maintainAspectRatio:false} });
+    const top = [...users].sort((a,b)=>b.saldo-a.saldo).slice(0,5);
+    chart2 = new Chart(document.getElementById('chartTopDeudores'), { type:'bar', data:{ labels:top.map(u=>u.nombre), datasets:[{label:'Deuda $', data:top.map(u=>u.saldo), backgroundColor:'#FFBF12', borderRadius:8}] }, options:{maintainAspectRatio:false} });
+}
+
+function renderAdminList(){
+    const list = document.getElementById("admin-user-list");
+    list.innerHTML = "";
+    DB.getUsers().filter(u=>u.rol==='cliente').forEach(u => {
+        const sel = selectedClientId===u.id;
+        list.innerHTML += `<button onclick="selectClient('${u.id}')" class="w-full text-left p-3 rounded-xl text-xs ${sel?'bg-white text-black font-black shadow-sm':'text-zinc-500 hover:bg-white/5'} transition-all"><div class="flex justify-between"><span>${u.nombre}</span><span>$${u.saldo}</span></div></button>`;
+    });
+}
+
+function selectClient(id){
+    selectedClientId=id; changeAdminTab('gestion');
+    const u = DB.getUsers().find(x=>x.id===id);
+    document.getElementById('selected-client-name').innerText = u.nombre;
+    document.getElementById('selected-client-debt').innerText = `$${u.saldo.toLocaleString()}`;
+    document.getElementById('admin-print-btn').classList.add('hidden');
+    renderAdminList();
+}
+
+function registrarMovimiento(tipo){
+    const amtInput = document.getElementById(tipo==='Cargo'?'debt-amount':'pay-amount');
+    const amt = parseFloat(amtInput.value);
+    if(!amt || amt <= 0) return alert("Monto inválido");
+    const users = DB.getUsers();
+    const u = users.find(x=>x.id===selectedClientId);
+    u.saldo += (tipo==='Cargo'?amt:-amt);
+    DB.saveUsers(users);
+    
+    const mid = Date.now().toString();
+    const mv = DB.getMovements();
+    mv.push({ mv_id:mid, id:selectedClientId, tipo, monto:amt, fecha:new Date().toLocaleDateString(), fecha_raw:new Date().toISOString(), detalle:document.getElementById('debt-desc').value||tipo, saldo_al_momento:u.saldo });
+    DB.saveMovements(mv);
+    
+    if(tipo==='Abono'){ lastMvId=mid; document.getElementById('admin-print-btn').classList.remove('hidden'); }
+    amtInput.value = "";
+    if(tipo==='Cargo') document.getElementById('debt-desc').value = "";
+    selectClient(selectedClientId);
+}
+
+function imprimirTicket(mvId) {
+    const mv = DB.getMovements().find(m => m.mv_id === mvId);
+    const u = DB.getUsers().find(usr => usr.id === mv.id);
+    document.getElementById('p-fecha').innerText = mv.fecha;
+    document.getElementById('p-cliente').innerText = u.nombre;
+    document.getElementById('p-detalle').innerText = mv.detalle;
+    document.getElementById('p-tipo').innerText = mv.tipo.toUpperCase();
+    document.getElementById('p-monto').innerText = mv.monto.toLocaleString();
+    document.getElementById('p-saldo').innerText = mv.saldo_al_momento.toLocaleString();
+    setTimeout(() => { window.print(); }, 150);
+}
+
+function imprimirUltimoTicket(){ if(lastMvId) imprimirTicket(lastMvId); }
+
+function renderClientDashboard(){
+    const u = DB.getUsers().find(x=>x.id===currentUser.id);
+    document.getElementById('client-total-debt').innerText = `$${u.saldo.toLocaleString()}`;
+    const mv = DB.getMovements().filter(m=>m.id===u.id).reverse();
+    const table = document.getElementById('client-movements-table');
+    table.innerHTML = "";
+    mv.forEach(m=>{
+        table.innerHTML += `<tr class="hover:bg-zinc-50 transition-all"><td class="p-6">
+            <p class="text-[9px] font-black text-zinc-400 uppercase tracking-widest">${m.fecha}</p>
+            <p class="font-bold text-zinc-800 text-sm">${m.detalle}</p>
+        </td><td class="p-6 text-right">
+            <p class="font-black text-xl ${m.tipo==='Abono'?'text-emerald-500':'text-charcoal'}">$${m.monto.toLocaleString()}</p>
+            <button onclick="imprimirTicket('${m.mv_id}')" class="text-[10px] font-black uppercase text-blue-500 hover:text-blue-700 flex items-center justify-end gap-1 mt-1 transition-all">
+                <span class="material-symbols-outlined text-sm">print</span> Imprimir Ticket
+            </button>
+        </td></tr>`;
+    });
+}
+
+function nuevoDeudor(){
+    const n = prompt("Nombre:"); if(!n) return;
+    const users = DB.getUsers();
+    users.push({id:Date.now().toString(), email:n.toLowerCase().replace(/\s/g,'')+"@deudor.com", pass:"123", rol:"cliente", nombre:n, saldo:0});
+    DB.saveUsers(users); renderAdminList();
+}
+
+function exportarCSV(){
+    const data=DB.getMovements();
+    let csv="ClienteID,Tipo,Monto,Detalle,Fecha\n";
+    data.forEach(m=> csv += `${m.id},${m.tipo},${m.monto},${m.detalle},${m.fecha}\n`);
+    descargar(csv, "reporte.csv", "text/csv");
+}
+
+function exportarBaseDatos(){
+    const b = new Blob([JSON.stringify({usuarios:DB.getUsers(), movimientos:DB.getMovements()},null,2)],{type:'application/json'});
+    const a = document.createElement("a"); a.href=URL.createObjectURL(b); a.download="respaldo.json"; a.click();
+}
+
+function importarBaseDatos(e){
+    const reader = new FileReader();
+    reader.onload = function(evt){
+        const d = JSON.parse(evt.target.result);
+        DB.saveUsers(d.usuarios); DB.saveMovements(d.movimientos); location.reload();
+    };
+    reader.readAsText(e.target.files[0]);
+}
+
+function descargar(contenido, nombre, tipo){
+    const b = new Blob([contenido], {type: tipo});
+    const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = nombre; a.click();
+}
+</script>
+</body>
+</html>
